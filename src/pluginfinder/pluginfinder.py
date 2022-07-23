@@ -35,13 +35,13 @@ class PluginFinder():
         
     def install(self, pluginId=str):
         """ Installs the latest available version of a plugin. """
-        qInfo("Installing " + pluginId)
+        qInfo(f"Installing {pluginId}")
         pluginData = self.search.pluginData(pluginId)
         self.installer.installPlugin(pluginData)
 
     def uninstall(self, pluginId=str):
         """ Uninstalls the current version of a plugin. """
-        qInfo("Uninstalling " + pluginId)
+        qInfo(f"Uninstalling {pluginId}")
         self.installer.uninstallPlugin(pluginId)
 
     def initial(self, pfVersion=str):

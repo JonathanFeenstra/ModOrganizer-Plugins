@@ -36,12 +36,8 @@ class PluginData(SharedJson):
         return str(self.getJsonProperty("DocsUrl"))
     
     def versions(self):
-        versions = []
-        data = self.getJsonArray("Versions")
-        if data:
-            for version in data:
-                versions.append(PluginVersion(version))
-            return versions 
+        if data := self.getJsonArray("Versions"):
+            return [PluginVersion(version) for version in data]
         else:
             return None
 
@@ -50,12 +46,24 @@ class PluginData(SharedJson):
         allVersions = self.versions()
         workingVersions = []
         if allVersions and len(allVersions) > 0:
-            for version in allVersions:
-                if version.maxWorking() == "" or not self.utilities.versionIsNewer(version.maxWorking(), moVersion):
-                    if version.minWorking() == "" or not self.utilities.versionIsNewer(moVersion, version.minWorking()):
-                        workingVersions.append(version)
+            workingVersions.extend(
+                version
+                for version in allVersions
+                if (
+                    version.maxWorking() == ""
+                    or not self.utilities.versionIsNewer(
+                        version.maxWorking(), moVersion
+                    )
+                )
+                and (
+                    version.minWorking() == ""
+                    or not self.utilities.versionIsNewer(
+                        moVersion, version.minWorking()
+                    )
+                )
+            )
 
-        if len(workingVersions) > 0:
+        if workingVersions:
             latestVersion = workingVersions[0]
             latest = latestVersion.version()
             for version in workingVersions:
@@ -81,14 +89,9 @@ class PluginData(SharedJson):
         return None
     
     def currentOrLatest(self, moVersion=str):
-        current = self.current(moVersion)
-        if current:
+        if current := self.current(moVersion):
             return current
-        else:
-            latest = self.latest()
-            if latest:
-                return latest
-        return None
+        return latest if (latest := self.latest()) else None
 
     def specificVersion(self, version=str):
         p1 = self.utilities.parseVersion(version)

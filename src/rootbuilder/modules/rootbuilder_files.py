@@ -58,19 +58,21 @@ class RootBuilderFiles(SharedFiles):
         # Loop through the list of mods.
         for mod in modlist:
             # Check that the mod is active and has a root folder.
-            if self.organiser.modList().state(mod) & mobase.ModState.ACTIVE:
-                if (self.paths.modsPath() / mod / "Root").exists():
-                    exclude = False
-                    # Check if the file is, or is in, an exclusion.
-                    for ex in self.settings.exclusions():
-                        if self.paths.fileExists(self.paths.modsPath() / mod / "Root" / ex):
+            if (
+                self.organiser.modList().state(mod) & mobase.ModState.ACTIVE
+                and (self.paths.modsPath() / mod / "Root").exists()
+            ):
+                exclude = False
+                # Check if the file is, or is in, an exclusion.
+                for ex in self.settings.exclusions():
+                    if self.paths.fileExists(self.paths.modsPath() / mod / "Root" / ex):
                         #if (self.paths.modsPath() / mod / "Root" / ex).exists():
-                            exclude = True
-                    # Check if the file is part of the game data folder.
-                    if (self.paths.modsPath() / mod / "Root" / self.paths.gameDataDir()).exists():
                         exclude = True
-                    if exclude == False:
-                        rootmods.append(mod)
+                # Check if the file is part of the game data folder.
+                if (self.paths.modsPath() / mod / "Root" / self.paths.gameDataDir()).exists():
+                    exclude = True
+                if exclude == False:
+                    rootmods.append(mod)
         return rootmods
 
     def getRootModFiles(self):
@@ -86,7 +88,7 @@ class RootBuilderFiles(SharedFiles):
                 if relativePath in modFiles:
                     modFiles[relativePath] = file
                 else:
-                    modFiles.update({str(relativePath):str(file)})
+                    modFiles[str(relativePath)] = str(file)
         # Do the same for the root overwrite folder.
         if self.paths.rootOverwritePath().exists():
             for file in self.getFolderFileList(self.paths.rootOverwritePath()):
@@ -95,7 +97,7 @@ class RootBuilderFiles(SharedFiles):
                 if relativePath in modFiles:
                     modFiles[relativePath] = file
                 else:
-                    modFiles.update({str(relativePath):str(file)})
+                    modFiles[str(relativePath)] = str(file)
         return list(modFiles.values())
 
     def getLinkableModFiles(self):
@@ -108,7 +110,7 @@ class RootBuilderFiles(SharedFiles):
             exclude = True
             # Loop through the linkable extensions and look for a match.
             for ex in self.settings.linkextensions():
-                if (str(file)).endswith("." + ex):
+                if (str(file)).endswith(f".{ex}"):
                     exclude = False
             if exclude == False:
                 linkableFiles.append(file)

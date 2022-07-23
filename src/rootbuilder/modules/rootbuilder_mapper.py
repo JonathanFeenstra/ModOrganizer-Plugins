@@ -45,7 +45,9 @@ class RootBuilderMapper():
         return mappings
 
     def cleanup(self):
-        if self.paths.rootOverwritePath().exists():
-            if len(os.listdir(self.paths.rootOverwritePath())) == 0:
-                os.rmdir(self.paths.rootOverwritePath())
+        if (
+            self.paths.rootOverwritePath().exists()
+            and len(os.listdir(self.paths.rootOverwritePath())) == 0
+        ):
+            os.rmdir(self.paths.rootOverwritePath())
         return
